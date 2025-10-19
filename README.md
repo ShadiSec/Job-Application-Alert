@@ -55,7 +55,7 @@ Save the workflow and toggle it to **Active**.
 
 When a new employer email is detected, a message like this will appear in your Discord channel:
 
-
+![embed_example](./embed_example)
 
 ## About This Project
 

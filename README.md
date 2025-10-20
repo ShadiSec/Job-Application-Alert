@@ -32,7 +32,7 @@ This workflow checks my inbox every minute, uses a Large Language Model (LLM) to
 
 ## Setup & Installation
 
-1. **Get the Workflow:** `add link to workflow`
+1. [Get the Workflow](./Email_Classifier.json)
 2. **Import to n8n:**
     - Open your n8n canvas.
     - Go to `File` > `Import from File...`

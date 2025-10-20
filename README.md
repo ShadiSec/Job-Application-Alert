@@ -60,4 +60,5 @@ When a new employer email is detected, a message like this will appear in your D
 ## About This Project
 
 This was a personal project to practice my skills in AI and automation. It solves a simple but annoying problem. I hope this helps you too!
+
 ![work flow example](./workflowSS)

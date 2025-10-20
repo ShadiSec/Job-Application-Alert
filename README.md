@@ -19,7 +19,7 @@ This workflow checks my inbox every minute, uses a Large Language Model (LLM) to
 - **AI Data Extraction:**
     - Identifies and extracts the **company name**.
     - Generates a **summary** of the email's content.
-- **Instant Notifications:** Sends a clean, formatted [Discord Embed](https://www.google.com/search?q=https://discord.com/developers/docs/resources/channel%23embed-object) with all relevant details.
+- **Instant Notifications:** Sends a clean, formatted Discord Embed with all relevant details.
 
 ## Workflow Breakdown
 

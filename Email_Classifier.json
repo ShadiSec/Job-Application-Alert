@@ -1,0 +1,394 @@
+{
+  "name": "Email Classifier",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5934b14f-5742-4749-9ede-61424c05534c",
+              "name": "Subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "73577c99-825c-4440-8f6e-b0f105aea887",
+              "name": "Content",
+              "value": "={{ $json.bodyPreview }}",
+              "type": "string"
+            },
+            {
+              "id": "9b06db7d-9799-4a79-bffd-d19558cbb6c9",
+              "name": "from_email",
+              "value": "={{ $json.from }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c0c65758-829c-4fd9-9c45-626b5451c20f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Classify the email\n\nFrom Email: {{ $json.from_email }}\nSubject: {{ $json.Subject }}\nContent: {{ $json.Content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "## **Role**\nYou are an email classification agent.  \nYour sole task is to determine whether an email is a **direct response from an employer** regarding a job application that the user previously submitted.  \n\nYou must **only** classify emails as employer responses if they clearly show that:\n- The sender is acting on behalf of a company or organization the user applied to.  \n- The message content explicitly continues a job application process (e.g., acknowledgment, interview request, scheduling, rejection, job offer, or next steps).  \n- The tone and structure match that of an official hiring communication.\n\nEmails that are **not** direct replies (e.g., job alerts, newsletters, recruiter outreach, or unrelated employment opportunities) must be classified as **not employer responses**.\n\n## **Task**\nFor each email, analyze:\n- **Subject line** (for reply indicators like “Re:”, “Regarding your application”, “Interview with [Company]”, etc.)  \n- **From address** (company domain or HR representative email)  \n- **Body content** (mentions of application status, interview scheduling, or company follow-up). If the content is cut off, just summarize what you see.\n\nUse these clues to decide whether the email is a verified employer response.\n\n## **Output Format**\nUse the Structured Output Parser to format the data in json\n\nRespond by creating 3 variables with the following structure:\n\"job_related\": true or false,\n\"summary\": Brief summary of the email content and the employer’s intent/response.,\n\"employer\": Company name if identifiable, otherwise 'N/A'.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c58b7b61-5475-4c82-8e0e-848b5a47abe4",
+      "name": "AI Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"job_related\": {\n      \"type\": \"boolean\"\n    },\n\t\"summary\": {\n      \"type\": \"string\"\n    },\n    \"employer\": {\n      \"type\": \"string\"\n    }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        176
+      ],
+      "id": "dc96b4b1-a141-4c19-8936-695e86a6a9ae",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c39f8178-bb68-461d-b4c0-43c5ac12db45",
+              "leftValue": "={{ $json.job_related }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        0
+      ],
+      "id": "4da49592-9bbc-48ac-8bd7-550035028d15",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "# AI Agent\n\nThe AI agent reads the email and determines whether it is a respnse from an employer.\n\nIt will return one variables:\n\n\"job_related\": A boolean expression.",
+        "height": 432,
+        "width": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "18d1933a-6847-4bf5-892e-2b809e365c97",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Variable Creator\n\nThis will create 3 variables from the contents of the email trigger:\n\n\"Subject\": The subject of the email.\n\n\"Content\": The content of the email.\n\n\"from_email\": The email of the sender.",
+        "height": 560,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "c71498fd-e97d-4778-9c34-4e0f5b9b6af5",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\nThis tool creates structured json variables from the output of the agent.",
+        "height": 304,
+        "width": 176,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "d927f4bd-ec75-406c-afef-8a11bc15c586",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=",
+        "options": {},
+        "embeds": {
+          "values": [
+            {
+              "description": "={{ $json.summary }}",
+              "author": "={{ $json.employer }}\n{{ $today.format('MM/dd/yy') }}",
+              "color": "#00FFDD",
+              "timestamp": "=",
+              "title": "=You got a response from {{ $json.employer }}!"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -16
+      ],
+      "id": "56537570-f35f-4744-8de9-f41d2aec55d1",
+      "name": "Discord",
+      "webhookId": "2c8b808d-98d9-4410-a10f-3aedd7990fe5",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "O4RijrVpWOr0XJum",
+          "name": "Shadi Employer Responses Webhook"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "foldersToInclude": [
+            "AQMkADAwATNiZmYAZC01ZDc2LWJhYjQtMDACLTAwCgAuAAADLT_zfDKJX0iuZktPElAe-wEA9Yj9UPR20ECDsgVsNMd7DAAAAgEMAAAA",
+            "AQMkADAwATNiZmYAZC01ZDc2LWJhYjQtMDACLTAwCgAuAAADLT_zfDKJX0iuZktPElAe-wEA9Yj9UPR20ECDsgVsNMd7DAAAAgEUAAAA"
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "aacad708-aeba-45ab-88f8-e452a595c482",
+      "name": "Microsoft Outlook Trigger",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "GOuWfzWjy437iLUo",
+          "name": "Shadi Microsoft Outlook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e8310278-c943-488f-a4a3-6c38930dba08",
+              "name": "employer",
+              "value": "={{ $json.output.employer.type }}",
+              "type": "string"
+            },
+            {
+              "id": "bf520cf4-0ab5-4bb3-b1a9-2fa6f9906d39",
+              "name": "summary",
+              "value": "={{ $json.output.summary.type }}",
+              "type": "string"
+            },
+            {
+              "id": "07d593ec-ecea-4053-ba5f-cda8c021f3b2",
+              "name": "job_related",
+              "value": "={{ $json.output.job_related.type }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        0
+      ],
+      "id": "d475afe2-bf6f-45aa-a6f1-6a078c8296f6",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "content": "# Variable Creator\n\nStructures the LLM response.",
+        "height": 352,
+        "width": 192,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -208
+      ],
+      "typeVersion": 1,
+      "id": "32aaea1b-3e29-4edb-83a1-2768ab474803",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Updates\n\n* **Identification:** Made the identifying process more strict to filter out **false positives**. This fixes an issue where the agent would think telemarketers and job boards were actual responses from the employer.\n\n* **Filter:** Added a filter which will only check relevant folders such as **\"Inbox\"** and **\"Junk\"**. This fixes an issue where the agent thought drafts made by the user were responses from an employer.\n\n* **AI Model:** Replaced DeepSeek with **Gemini 2.5 Flash**. This was done to save money (Free) and because Gemini's reasoning for classification was better.",
+        "height": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        -272
+      ],
+      "typeVersion": 1,
+      "id": "5229403b-38e8-4269-8fb3-670f82b34517",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        160
+      ],
+      "id": "5f8e05a9-d3f7-4831-b075-94f199e9398d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Or1LanD1BcxXo1eF",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Outlook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "76ce0f18-8ded-45de-97cc-67544ff51a03",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0e09d0a72a0fb2c07d6d44ea8b72e2f592b2771ff995b4ccfd408e3416f75fb6"
+  },
+  "id": "iMNFCEZAOVcTapGZ",
+  "tags": []
+}
